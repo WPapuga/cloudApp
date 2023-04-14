@@ -5,10 +5,10 @@
         "redirect":"https://cloudappwp.azurewebsites.net/auth/google/callback"
     },
     "credentials": {
-        "access_token": "token",
+        "access_token": "",
         "token_type": "bearer",
         "expires_in": 3600,
-        "refresh_token": "refresh_token"
+        "refresh_token": ""
     },
     "web": {
         "project_id":"cloudappwp",
