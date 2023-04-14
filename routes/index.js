@@ -1,6 +1,6 @@
 const { google } = require('googleapis');
 const express = require('express')
-const OAuth2Data = require('./google_key.json')
+const OAuth2Data = require('../google_key.json')
 
 const app = express()
 
@@ -19,19 +19,19 @@ app.get('/', (req, res) => {
     });
       console.log(url)
       res.redirect(url);
-    } else {
-      var oauth2 = google.oauth2({ auth: oAuth2Client, version: 'v2'});
-      oauth2.userinfo.v2.me.get(function(err, result) {
-        if(err) {
-          console.log("Błąd");
-          console.log(err);
-        } else {
-          loggedUser = result.data.name;
-          console.log(loggedUser);
-        }
-        res.send('Logged in: '.concat(loggedUser, ' <img src="', result.data.picture, '"height="23" width="23">'));
-      });
-    }
+  } else {
+    var oauth2 = google.oauth2({ auth: oAuth2Client, version: 'v2'});
+    oauth2.userinfo.v2.me.get(function(err, result) {
+      if(err) {
+        console.log("Błąd");
+        console.log(err);
+      } else {
+        loggedUser = result.data.name;
+        console.log(loggedUser);
+      }
+      res.send('Logged in: '.concat(loggedUser, ' <img src="', result.data.picture, '"height="23" width="23">'));
+    });
+  }
 })
 
 app.get('/auth/google/callback', function (req, res) {
