@@ -14,24 +14,6 @@
 
         <script type="text/javascript">
             function onLoad(){
-                if (sessionStorage.getItem('expired')){
-                    logout();
-                    document.getElementById("signInMessage").innerHTML = "Wylogowano - token wygasł";
-                    return;
-                }
-                if(sessionStorage.getItem('token')){
-                    document.getElementById("signInMessage").innerHTML = "Zalogowany";
-                    document.getElementById("signInForm").style.display = 'none';
-                    document.getElementById("logoutButton").style.display = 'block';
-                    document.getElementById("loginData").style.display = 'block';
-
-                    
-                }
-                else{
-                    document.getElementById("signInForm").style.display = 'block';
-                    document.getElementById("logoutButton").style.display = 'none';
-                    document.getElementById("loginData").style.display = 'none';
-                }
             }
         </script>
     </body>
