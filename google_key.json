@@ -1,7 +1,5 @@
 {
     "client": {
-        "id":"3054702082-27vrnp0vmeu5mm03hv2ll9im7b39u7m5.apps.googleusercontent.com",
-        "secret":"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",
         "redirect":"https://cloudappwp.azurewebsites.net/auth/google/callback"
     },
         "credentials": {
