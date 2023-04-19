@@ -4,7 +4,7 @@
         "secret":"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",
         "redirect":"https://cloudappwp.azurewebsites.net/auth/google/callback"
     },
-    "credentials": {
+        "credentials": {
         "access_token": "",
         "token_type": "bearer",
         "expires_in": 3600,

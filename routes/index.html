@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+ 
+<html>
+    <head>
+        <title>JWT</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    </head>
+    <body onload="onLoad()">
+        <div>
+            <button id="loginButton" onclick="window.location.href = '/login';">Zaloguj się!</button><br>
+        </div>
+
+        <script type="text/javascript">
+            function onLoad(){
+                if (sessionStorage.getItem('expired')){
+                    logout();
+                    document.getElementById("signInMessage").innerHTML = "Wylogowano - token wygasł";
+                    return;
+                }
+                if(sessionStorage.getItem('token')){
+                    document.getElementById("signInMessage").innerHTML = "Zalogowany";
+                    document.getElementById("signInForm").style.display = 'none';
+                    document.getElementById("logoutButton").style.display = 'block';
+                    document.getElementById("loginData").style.display = 'block';
+
+                    
+                }
+                else{
+                    document.getElementById("signInForm").style.display = 'block';
+                    document.getElementById("logoutButton").style.display = 'none';
+                    document.getElementById("loginData").style.display = 'none';
+                }
+            }
+        </script>
+    </body>
+</html>

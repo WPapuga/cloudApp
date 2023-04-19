@@ -1,7 +1,9 @@
-const { google } = require('googleapis');
+const { google } = require('googleapis')
 const express = require('express')
 const OAuth2Data = require('../google_key.json')
-
+const http = require('http')
+const fs = require('fs')
+const path = require('path')
 const app = express()
 
 const CLIENT_ID = OAuth2Data.client.id;
@@ -12,6 +14,10 @@ const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_U
 var authed = false;
 
 app.get('/', (req, res) => {
+  const filePath = path.join(__dirname, 'index.html');
+  res.sendFile(filePath);
+})
+app.get('/login', function(req, res){
   if (!authed) {
     const url = oAuth2Client.generateAuthUrl({
       access_type: 'offline',
@@ -33,7 +39,6 @@ app.get('/', (req, res) => {
     });
   }
 })
-
 app.get('/auth/google/callback', function (req, res) {
     const code = req.query.code
     if (code) {
