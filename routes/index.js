@@ -1,19 +1,17 @@
 const { google } = require('googleapis')
 const express = require('express')
-const session = require('express-session');
 const OAuth2Data = require('../google_key.json')
 const http = require('http')
 const fs = require('fs')
 const path = require('path')
 const app = express()
 
-
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
-const REDIRECT_URL = OAuth2Data.client.redirect;
-const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
-const authed = false;
+const REDIRECT_URL = OAuth2Data.client.redirect
 
+const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL)
+var authed = false;
 
 app.get('/', (req, res) => {
   const filePath = path.join(__dirname, 'index.html');
@@ -48,7 +46,7 @@ app.get('/login', function(req, res){
 })
 app.get('/logout', function(req, res) {
   var oauth2 = google.oauth2({ auth: oAuth2Client, version: 'v2'});
-  authed = false;
+  auth = false;
   res.send(`<p>Wylogowano</p>
             <button id="returnButton" onclick="window.location.href = '/';">Powrór do strony głównej</button>`
   );
