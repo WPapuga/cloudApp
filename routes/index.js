@@ -46,7 +46,7 @@ app.get('/login', function(req, res){
 })
 app.get('/logout', function(req, res) {
   var oauth2 = google.oauth2({ auth: oAuth2Client, version: 'v2'});
-  auth = false;
+  authed = false;
   res.send(`<p>Wylogowano</p>
             <button id="returnButton" onclick="window.location.href = '/';">Powrór do strony głównej</button>`
   );
