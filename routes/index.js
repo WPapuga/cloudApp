@@ -37,18 +37,18 @@ app.get('/login', function(req, res){
       }
       var ret = `<body>
                       <p> Logged in:` + loggedUser +` <img src="` + result.data.picture + `"height="23" width="23"> </p>
-                      <button id="logoutButton" onclick="window.location.href = '/logout';" hidden>Wyloguj się</button>
-                      <button id="returnButton" onclick="window.location.href = '/';" hidden>Powrór do strony głównej</button>
+                      <button id="logoutButton" onclick="window.location.href = '/logout';">Wyloguj się</button>
+                      <button id="returnButton" onclick="window.location.href = '/';">Powrór do strony głównej</button>
                 </body>`;
       res.send(ret);
     });
   };
 })
-app.get('/logout', function(req, req) {
+app.get('/logout', function(req, res) {
   var oauth2 = google.oauth2({ auth: oAuth2Client, version: 'v2'});
   auth = false;
   res.send(`<p>Wylogowano</p>
-            <button id="returnButton" onclick="window.location.href = '/';" hidden>Powrór do strony głównej</button>`
+            <button id="returnButton" onclick="window.location.href = '/';">Powrór do strony głównej</button>`
   );
 });
 app.get('/auth/google/callback', function (req, res) {
