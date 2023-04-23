@@ -35,10 +35,17 @@ app.get('/login', function(req, res){
         loggedUser = result.data.name;
         console.log(loggedUser);
       }
-      res.send('Logged in: '.concat(loggedUser, ' <img src="', result.data.picture, '"height="23" width="23">'));
+      res.send(`Logged in: '.concat(loggedUser, ' <img src="', result.data.picture, '"height="23" width="23">
+                <button id="logoutButton" onclick="window.location.href = '/logout';" hidden>Wyloguj się!</button>`
+      );
     });
-  }
+  };
 })
+app.get('/logout', function(req, req) {
+  res.send(`Wylogowano
+            <button id="returnButton" onclick="window.location.href = '/';" hidden>Powrór do strony głównej</button>`
+  );
+});
 app.get('/auth/google/callback', function (req, res) {
     const code = req.query.code
     if (code) {
