@@ -18,7 +18,7 @@ var authed = false;
 const CLIENT_ID_GH = process.env.CLIENT_ID_GH;
 const CLIENT_SECRET_GH = process.env.CLIENT_SECRET_GH;
 const gh_link = `https://github.com/login/oauth/authorize?client_id=` + CLIENT_ID_GH + 
-                `&redirect_uri=https://cloudappwp.azurewebsites.net/auth/github/callback`
+                `&redirect_uri=https://cloudappwp.azurewebsites.net/auth/github/callback` +
                 `&scope=read:user+user:email` + 
                 `&allow_signup=true`;
 var authed_gh;
