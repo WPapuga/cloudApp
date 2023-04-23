@@ -37,7 +37,8 @@ app.get('/login', function(req, res){
       }
       var ret = `<body>
                       <p> Logged in:` + loggedUser +` <img src="` + result.data.picture + `"height="23" width="23"> </p>
-                    </body>`;
+                      <button id="logoutButton" onclick="window.location.href = '/logout';" hidden>Wyloguj się</button>
+                </body>`;
       res.send(ret);
     });
   };
@@ -46,7 +47,7 @@ app.get('/logout', function(req, req) {
   var oauth2 = google.oauth2({ auth: oAuth2Client, version: 'v2'});
   oauth2.signOut().then(function(){});
   oauth2.disconnect();
-  res.send(`Wylogowano
+  res.send(`<p>Wylogowano</p>
             <button id="returnButton" onclick="window.location.href = '/';" hidden>Powrór do strony głównej</button>`
   );
 });
