@@ -7,26 +7,12 @@
         <meta name="viewport" content="width=device-width">
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     </head>
-    <body onload="onLoad()">
+    <body>
         <div>
             <button id="loginButton" onclick="window.location.href = '/login';">Zaloguj się przez Google!</button><br>
         </div>
-        <div>
-            <button id="logoutButton" onclick="window.location.href = '/logout';" hidden>Wyloguj się!</button><br>
-        </div>
 
         <script type="text/javascript">
-            var isLogged = 0;
-            function onLoad(){
-                if (isLogged == 1){
-                    Document.getElementById('loginButton').setAttribute('hidden', 'hidden');
-                    Document.getElementById('logoutButton').removeAttribute('hidden');
-                }
-                else{
-                    Document.getElementById('logoutButton').setAttribute('hidden', 'hidden');
-                    Document.getElementById('loginButton').removeAttribute('hidden');
-                }
-            }
         </script>
     </body>
 </html>
