@@ -62,7 +62,8 @@ app.get('/auth/google/callback', function (req, res) {
                 console.log('Successfully authenticated');
                 oAuth2Client.setCredentials(tokens);
                 authed = true;
-                res.redirect('/')
+                res.send(`<p>Zalogowano</p>
+                          <button id="returnButton" onclick="window.location.href = '/';">Powrór do strony głównej</button>`)
             }
         });
     }
