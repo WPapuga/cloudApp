@@ -115,6 +115,7 @@ app.get('/auth/github/callback', function (req, res) {
   const code = req.query.code;
   if (code) {
     token_gh = getToken(code);
+    authed_gh = true;
     res.send(`<p>Zalogowano</p>
               <button id="returnButton" onclick="window.location.href = '/';">Powrót do strony głównej</button>`);
   }
