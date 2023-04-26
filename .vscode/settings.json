@@ -1,4 +1,0 @@
-{
-    "appService.defaultWebAppToDeploy": "/subscriptions/77d78c7c-0581-45a4-9f10-7ca351ec0da1/resourceGroups/cloudAppWP-rg/providers/Microsoft.Web/sites/cloudAppWP",
-    "appService.deploySubpath": "."
-}

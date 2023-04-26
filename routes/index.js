@@ -1,5 +1,6 @@
 const { google } = require('googleapis')
 const express = require('express')
+const { Client } = require('pg')
 const OAuth2Data = require('../google_key.json')
 const http = require('http')
 const fs = require('fs')
@@ -7,6 +8,24 @@ const path = require('path')
 const axios = require('axios');
 const app = express()
 
+const connectDB = async () => {
+  try {
+    const client = new Client({
+      user: process.env.PGUSER,
+      host: process.env.PGHOST,
+      database: process.env.PGDATABASE,
+      password: process.env.PGPASSWORD,
+      port: process.env.PGPORT
+    })
+
+    await client.connect()
+    const res = await client.query('SELECT * FROM users')
+    console.log(res)
+    await client.end()
+  } catch (error){
+    console.log(error)
+  }
+}
 
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
