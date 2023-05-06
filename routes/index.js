@@ -1,21 +1,39 @@
 const { google } = require('googleapis')
 const express = require('express')
-const OAuth2Data = require('./google_key.json')
+const { Client } = require('pg')
+const OAuth2Data = require('../google_key.json')
 const http = require('http')
 const fs = require('fs')
 const path = require('path')
 const axios = require('axios');
-const bodyParser = require('body-parser')
-const cors = require('cors')
-const pg = require("pg")
-require('dotenv').config()
-
 const app = express()
-const CLIENT_ID = process.env.CLIENT_ID
-const CLIENT_SECRET = process.env.CLIENT_SECRET
+
+const connectDB = async () => {
+  try {
+    const client = new Client({
+      user: process.env.PGUSER,
+      host: process.env.PGHOST,
+      database: process.env.PGDATABASE,
+      password: process.env.PGPASSWORD,
+      port: process.env.PGPORT
+    })
+
+    await client.connect()
+    const res = await client.query('SELECT * FROM users')
+    console.log(res)
+    await client.end()
+  } catch (error){
+    console.log(error)
+  }
+}
+
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URL = OAuth2Data.client.redirect
+
 const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL)
-var authed = false
+var authed = false;
+
 const CLIENT_ID_GH = process.env.CLIENT_ID_GH;
 const CLIENT_SECRET_GH = process.env.CLIENT_SECRET_GH;
 const gh_link = `https://github.com/login/oauth/authorize?client_id=` + CLIENT_ID_GH + 
@@ -24,36 +42,13 @@ const gh_link = `https://github.com/login/oauth/authorize?client_id=` + CLIENT_I
                 `&allow_signup=true`;
 var authed_gh;
 var token_gh;
-const { PGHOST, PGDATABASE, PGUSER, PGPASSWORD, ENDPOINT_ID } = process.env
-const credentialsDB = {
-  user: PGUSER,
-  host: PGHOST,
-  database: PGDATABASE,
-  password: PGPASSWORD,
-  port: process.env.PGPORT,
-  ssl: true
-}
-const pool = new pg.Pool(credentialsDB)
-
-
-const testDB = async () => {
-  try {
-      const res = await pool.query('SELECT * FROM users')
-      console.log(res)
-  } catch (error) {
-      console.log(error)
-  }
-}
-
-app.use(express.static(path.join(__dirname, "..", "build")));
-app.use(express.static("public"))
 
 
 
-// app.get('/', (req, res) => {
-//   res.sendFile(path.join(__dirname, "public", "index.html"));
-// })
-
+app.get('/', (req, res) => {
+  const filePath = path.join(__dirname, 'index.html');
+  res.sendFile(filePath);
+})
 app.get('/login', function(req, res){
   if (!authed) {
     const url = oAuth2Client.generateAuthUrl({
@@ -61,8 +56,7 @@ app.get('/login', function(req, res){
       scope: 'https://www.googleapis.com/auth/userinfo.profile'
     });
     console.log(url)
-
-
+    res.redirect(url);
   } else {
     var oauth2 = google.oauth2({ auth: oAuth2Client, version: 'v2'});
     oauth2.userinfo.v2.me.get(function(err, result) {
@@ -82,7 +76,6 @@ app.get('/login', function(req, res){
     });
   };
 })
-
 app.get('/loginGH', function(req, res) {
   if(!authed_gh){
     res.redirect(gh_link);
@@ -94,21 +87,18 @@ app.get('/loginGH', function(req, res) {
               </body>`)
   }
 });
-
 app.get('/logout', function(req, res) {
   authed = false;
   res.send(`<p>Wylogowano</p>
             <button id="returnButton" onclick="window.location.href = '/';">Powrór do strony głównej</button>`
   );
 });
-
 app.get('/logoutGH', function(req, res) {
   authed_gh = false;
   res.send(`<p>Wylogowano</p>
             <button id="returnButton" onclick="window.location.href = '/';">Powrór do strony głównej</button>`
   );
 });
-
 app.get('/auth/google/callback', function (req, res) {
     const code = req.query.code
     if (code) {
@@ -140,7 +130,6 @@ async function getToken(code){
   });
   return data.access_token;
 }
-
 app.get('/auth/github/callback', function (req, res) {
   const code = req.query.code;
   if (code) {
