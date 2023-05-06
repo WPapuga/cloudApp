@@ -1,0 +1,84 @@
+.Navbar {
+    background-color: white;
+    border-bottom-color: #30CB70;
+    width: 100%;
+    height: 80px;
+    font-family: Arial, Helvetica, sans-serif;
+    display: flex;
+  }
+  
+  .Navbar a {
+    text-decoration: none;
+  }
+  
+  .Navbar .NavLeftSide {
+    flex: 20%;
+    display: flex;
+    max-height: 80px;
+    align-items: center;
+    color: #2F327D;
+  }
+  .Navbar .NavLeftSide a {
+    font-size: 30px;
+    margin-left: 5px;
+    font-weight: bold;
+  }
+  .Navbar .NavLeftSide img {
+    margin-left: 40px;
+  }
+  
+  .Navbar .NavLinks {
+    flex: 55%;
+    max-height: 80px;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+  }
+  .Navbar .NavLinks a {
+    text-decoration: none;
+    color: black;
+    font-size: 23px;
+    margin-left: 35px;
+  }
+  
+  .Navbar .NavSigning {
+    display: flex;
+    align-items: center;
+    margin-right: 3%;
+  }
+  .Navbar .NavSigning a {
+    text-decoration: none;
+    color: black;
+    font-size: 23px;
+    margin-left: 15px;
+  }
+  .Navbar .NavSigning .SignUpButton {
+    margin-left: 30px;
+    margin-right: 40px;
+    font-size: 23px;
+    background-color: white;
+    border-color: #2F327D;
+    color: #2F327D;
+  }
+  .Navbar .NavSigning .SignUpButton:hover {
+    margin-left: 30px;
+    margin-right: 40px;
+    font-size: 23px;
+    background-color: #30CB70;
+    border-color: #30CB70;
+    color: white;
+  }
+  
+  .Navbar .active a {
+    color: #30CB70;
+  }
+  
+  .Navbar a:hover {
+    color: #30CB70;
+  }
+  
+  .Navbar .active .SignUpButton {
+    background-color: #30CB70;
+    border-color: #30CB70;
+    color: white;
+  }  
