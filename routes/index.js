@@ -49,7 +49,11 @@ app.get('/', (req, res) => {
   const filePath = path.join(__dirname, 'index.html');
   res.sendFile(filePath);
 })
+
 app.get('/login', function(req, res){
+  const referer = req.headers.referer;
+  const redirectUrl = url.parse(referer).href;
+
   if (!authed) {
     const url = oAuth2Client.generateAuthUrl({
       access_type: 'offline',
@@ -67,12 +71,8 @@ app.get('/login', function(req, res){
         loggedUser = result.data.name;
         console.log(loggedUser);
       }
-      var ret = `<body>
-                      <p> Logged in:` + loggedUser +` <img src="` + result.data.picture + `"height="23" width="23"> </p>
-                      <button id="logoutButton" onclick="window.location.href = '/logout';">Wyloguj się</button>
-                      <button id="returnButton" onclick="window.location.href = '/';">Powrór do strony głównej</button>
-                </body>`;
-      res.send(ret);
+      res.send({message: loggedUser, picture: result.data.picture});
+      res.redirect(redirectUrl);
     });
   };
 })
@@ -105,6 +105,7 @@ app.get('/logoutGH', function(req, res) {
 });
 
 app.get('/auth/google/callback', function (req, res) {
+    const redirectUrl = `https://salmon-mud-09c577e03.3.azurestaticapps.net/`
     const code = req.query.code
     if (code) {
         oAuth2Client.getToken(code, function (err, tokens) {
@@ -115,8 +116,7 @@ app.get('/auth/google/callback', function (req, res) {
                 console.log('Successfully authenticated');
                 oAuth2Client.setCredentials(tokens);
                 authed = true;
-                res.send(`<p>Zalogowano</p>
-                          <button id="returnButton" onclick="window.location.href = '/';">Powrót do strony głównej</button>`)
+                res.redirect(redirectUrl)
             }
         });
     }
