@@ -1,5 +1,4 @@
 import React from 'react';
-import Button from 'react-bootstrap/Button'; 
 import "./Navbar.css";
 import { Link, useMatch, useResolvedPath } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
@@ -24,10 +23,10 @@ function Greeting(props) {
           <CustomLink to="/">Strona Główna</CustomLink>
           <CustomLink to="/">Wyposażenie</CustomLink>
           <CustomLink to="/">Ryby</CustomLink>
-          {sessionStorage.getItem('isLogged') == "true" ? <CustomLink to="/">Moje Akwaria</CustomLink> : <div></div>}
+          {sessionStorage.getItem('isLogged') === "true" ? <CustomLink to="/">Moje Akwaria</CustomLink> : <div></div>}
       </div>
       <div className="NavSigning">
-          {sessionStorage.getItem('isLogged') == "true" ? 
+          {sessionStorage.getItem('isLogged') === "true" ? 
               <CustomLink to="/">Wyloguj</CustomLink>
               :
               <>
