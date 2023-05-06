@@ -76,6 +76,7 @@ app.get('/login', function(req, res){
     });
   };
 })
+
 app.get('/loginGH', function(req, res) {
   if(!authed_gh){
     res.redirect(gh_link);
@@ -87,18 +88,22 @@ app.get('/loginGH', function(req, res) {
               </body>`)
   }
 });
+
 app.get('/logout', function(req, res) {
   authed = false;
   res.send(`<p>Wylogowano</p>
             <button id="returnButton" onclick="window.location.href = '/';">Powrór do strony głównej</button>`
   );
+
 });
+
 app.get('/logoutGH', function(req, res) {
   authed_gh = false;
   res.send(`<p>Wylogowano</p>
             <button id="returnButton" onclick="window.location.href = '/';">Powrór do strony głównej</button>`
   );
 });
+
 app.get('/auth/google/callback', function (req, res) {
     const code = req.query.code
     if (code) {
@@ -130,6 +135,7 @@ async function getToken(code){
   });
   return data.access_token;
 }
+
 app.get('/auth/github/callback', function (req, res) {
   const code = req.query.code;
   if (code) {
