@@ -26,7 +26,7 @@
             display: flex;
             max-height: 80px;
             align-items: center;
-            color: lightblue;
+            color: black;
           }
           .Navbar .NavLeftSide a {
             font-size: 30px;
@@ -88,29 +88,94 @@
             background-color: #30CB70;
             border-color: #30CB70;
             color: white;
-          }  
+          } 
+
+          table {
+            border-collapse: collapse;
+            width: 100%;
+          }
+
+          th, td {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+          }
+
+          th {
+            background-color: #f2f2f2;
+            color: #333;
+          } 
         </style>
     </head>
-    <body>
+    <body onload="loadPage()">
         <div class="Navbar">
             <div class="NavLeftSide">
                 <a>Cloud App WP+</a>
             </div>
             <div class="NavLinks">
-                <a href="http://localhost:3000/">Strona Główna</a>
-                <a href='http://localhost:5000/getData'> Pobierz dane</a>
+                <a onclick="window.location.href = '/';">Strona Główna</a>
+                <a onclick="getData()"> Pobierz dane</a>
             </div>
             <div class="NavSigning">
-                <a href='http://localhost:5000/login'> Zaloguj się Google</a>
-                <a href='http://localhost:5000/loginGH'>Zaloguj się Github</a>
+                <p id="usernameP"></p>
+                <a id="loginButton" onclick="window.location.href = '/login';">Zaloguj się przez Google!</a>
+                <a id="loginGhButton" onclick="window.location.href = '/loginGH';">Zaloguj się przez GitHub!</a>
+                <a id="logout" onclick="window.location.href = '/logout';">Wyloguj się</a>
             </div>
         </div>
         <div>
-            <button id="loginButton" onclick="window.location.href = '/login';">Zaloguj się przez Google!</button><br>
-            <button id="loginGhButton" onclick="window.location.href = '/loginGH';">Zaloguj się przez GitHub!</button><br>
-
+            <table id="dataTable">
+              <tr>
+                <th>name</th>
+                <th>joined date</th>
+                <th>last visit</th>
+                <th>counter</th>
+              </tr>
+            </table>
         </div>
         <script type="text/javascript">
+          sessionStorage.setItem('isLogged', 'false');
+
+          function loadPage() {
+            if (sessionStorage.getItem('isLogged') == 'true') {
+            document.getElementById('loginButton').style.display = 'none';
+            document.getElementById('loginGhButton').style.display = 'none';
+            document.getElementById('logout').style.display = 'block';
+            document.getElementById('usernameP').innerHTML = 'Zalogowany jako: ' + sessionStorage.getItem('username');
+            } else {
+              document.getElementById('loginButton').style.display = 'block';
+              document.getElementById('loginGhButton').style.display = 'block';
+              document.getElementById('logout').style.display = 'none';
+              document.getElementById('usernameP').innerHTML = ' ';
+            }
+          }
+
+          function getData() {
+            $.ajax({
+              url: '/api/getData',
+              type: 'GET',
+              dataType: 'json',
+              success: function(data) {
+                data.forEach(function(item) {
+                  createRow(item.name, item.joined, item.lastvisit, item.counter);
+                  alert(item.data);
+                });
+              },
+              error: function(data) {
+                alert("error");
+              }
+            });
+          }
+
+          function createRow(name, joinedDate, lastVisit, counter) {
+            const table = document.getElementById('dataTable');
+            var row = table.insertRow();
+            row.insertCell(0).innerHTML = name;
+            row.insertCell(1).innerHTML = joinedDate;
+            row.insertCell(2).innerHTML = lastVisit;
+            row.insertCell(3).innerHTML = counter;
+          }
+
         </script>
     </body>
 </html>

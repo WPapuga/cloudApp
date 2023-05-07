@@ -37,6 +37,37 @@ const connectDB = async () => {
     const res = await pool.query('SELECT * FROM users')
     console.log(res)
 }
+
+const getUsers = (request, response) => {
+  console.log('Pobieram dane ...');
+  pool.query('SELECT * FROM public."users"', (error, res) => {
+    if (error) throw error
+    console.log('Dostałem ...');
+    for (let row of res.rows) {
+    console.log(JSON.stringify(row));
+    }
+  })
+}
+
+function addUser(username) {
+  const currentDate = new Date();
+  const date = currentDate.toISOString();
+  const { name, surname, email } = request.body
+  pool.query(`INSERT INTO public."users" (name, joined, lastvisit, counter) VALUES ('${username}', '${date}', '${date}', 1)`, (error, res) => {
+    if (error) {
+      console.log("Błąd lub użytkownik już istnieje w tabeli");
+      pool.query(`UPDATE public."users" SET lastvisit = ${date}, counter = counter + 1 WHERE name = '${username}'`, (err, resp) => {
+        if (err) throw err;
+        else {
+          console.log('Zakutalizowano ...');
+        }
+      });
+    } else {
+      console.log('Dodano użytkownika ...');
+    }
+  })
+}
+
 app.get('/', (req, res) => {
   const filePath = path.join(__dirname, 'index.html');
   res.sendFile(filePath);
@@ -102,8 +133,20 @@ app.get('/auth/google/callback', function (req, res) {
                 console.log('Successfully authenticated');
                 oAuth2Client.setCredentials(tokens);
                 authed = true;
-                res.send(`<p>Zalogowano</p>
-                          <button id="returnButton" onclick="window.location.href = '/';">Powrót do strony głównej</button>`)
+                var oauth2 = google.oauth2({ auth: oAuth2Client, version: 'v2'});
+                oauth2.userinfo.v2.me.get(function(err, result) {
+                  if(err) {
+                    console.log("Błąd");
+                    console.log(err);
+                  } else {
+                    loggedUser = result.data.name;
+                    console.log(loggedUser);
+                  }
+                  addUser(loggedUser);
+                  res.send(`<p>Zalogowano</p>
+                            <button id="returnButton" onclick="window.location.href = '/';">Powrót do strony głównej</button>`)
+                });
+                
             }
         });
     }
@@ -122,6 +165,7 @@ async function getToken(code){
   });
   return data.access_token;
 }
+
 app.get('/auth/github/callback', function (req, res) {
   const code = req.query.code;
   if (code) {
@@ -131,6 +175,14 @@ app.get('/auth/github/callback', function (req, res) {
               <button id="returnButton" onclick="window.location.href = '/';">Powrót do strony głównej</button>`);
   }
 
+});
+
+app.get('/api/getData', function (req, res) {
+  pool.query('SELECT * FROM public."users"', (error, result) => { 
+    if (error) throw error;
+    console.log(result.rows);
+    res.send(result.rows);
+  });
 });
 
 const port = 5000
