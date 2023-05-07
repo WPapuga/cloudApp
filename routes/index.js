@@ -1,6 +1,6 @@
 const { google } = require('googleapis')
 const express = require('express')
-const { Client } = require('pg')
+const pg = require('pg')
 const OAuth2Data = require('../google_key.json')
 const http = require('http');
 const url = require('url');
@@ -8,6 +8,7 @@ const fs = require('fs')
 const path = require('path')
 const axios = require('axios');
 const app = express()
+require('dotenv').config()
 
 
 const CLIENT_ID = process.env.CLIENT_ID
@@ -60,6 +61,8 @@ app.get('/', (req, res) => {
 app.get('/login', function(req, res){
   const referer = req.headers.referer;
   const redirectUrl = referer;
+  console.log(redirectUrl);
+  console.log(CLIENT_ID);
 
   if (!authed) {
     const URL = oAuth2Client.generateAuthUrl({
