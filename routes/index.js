@@ -43,12 +43,12 @@ app.get('/', (req, res) => {
 })
 app.get('/login', function(req, res){
   if (!authed) {
-    const url = oAuth2Client.generateAuthUrl({
+    const URL = oAuth2Client.generateAuthUrl({
       access_type: 'offline',
       scope: 'https://www.googleapis.com/auth/userinfo.profile'
     });
-    console.log(url)
-    res.redirect(url);
+    console.log(URL)
+    res.redirect(URL);
   } else {
     var oauth2 = google.oauth2({ auth: oAuth2Client, version: 'v2'});
     oauth2.userinfo.v2.me.get(function(err, result) {
