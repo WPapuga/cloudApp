@@ -52,7 +52,6 @@ const getUsers = (request, response) => {
 function addUser(username) {
   const currentDate = new Date();
   const date = currentDate.toISOString();
-  const { name, surname, email } = request.body
   pool.query(`INSERT INTO public."users" (name, joined, lastvisit, counter) VALUES ('${username}', '${date}', '${date}', 1)`, (error, res) => {
     if (error) {
       console.log("Błąd lub użytkownik już istnieje w tabeli");
