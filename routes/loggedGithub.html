@@ -152,7 +152,7 @@
             </div>
             <div class="NavSigning">
                 <p id="usernameP"></p>
-                <a id="logout" onclick="window.location.href = '/logout';">Wyloguj się</a>
+                <a id="logout" onclick="window.location.href = '/logoutGH';">Wyloguj się</a>
             </div>
         </div>
         <div id="myModal" class="modal">
@@ -191,6 +191,10 @@
               success: function(data) {
                 document.getElementById('modalP').innerHTML = "Sukces połączenia z bazą danych";
                 modal.style.display = "block";
+                var table = document.getElementById("dataTable");
+                while (table.rows.length > 0) {
+                    table.deleteRow(0);
+                }
                 data.forEach(function(item) {
                   createRow(item.name, item.joined, item.lastvisit, item.counter);
                 });

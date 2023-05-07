@@ -160,6 +160,7 @@
             <div class="modal-content">
               <span class="close">&times;</span>
               <p id="modalP"></p>
+            </div>
         </div>
         <div>
             <table id="dataTable">
@@ -192,9 +193,12 @@
               success: function(data) {
                 document.getElementById('modalP').innerHTML = "Sukces połączenia z bazą danych";
                 modal.style.display = "block";
+                var table = document.getElementById("dataTable");
+                while (table.rows.length > 0) {
+                    table.deleteRow(0);
+                }
                 data.forEach(function(item) {
                   createRow(item.name, item.joined, item.lastvisit, item.counter);
-                  alert(item.data);
                 });
               },
               error: function(data) {
