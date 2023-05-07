@@ -132,8 +132,7 @@ app.get('/auth/github/callback', function (req, res) {
 });
 
 app.get('/getData', (req, res) => { 
-  const referer = req.headers.referer;
-  const redirectUrl = referer;
+  const redirectUrl = `https://salmon-mud-09c577e03.3.azurestaticapps.net/`
   if (authed) {
     var oauth2 = google.oauth2({ auth: oAuth2Client, version: 'v2'});
     oauth2.userinfo.v2.me.get((err, result) =>{
