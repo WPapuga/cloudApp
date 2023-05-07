@@ -1,7 +1,6 @@
 const { google } = require('googleapis')
 const express = require('express')
 const pg = require('pg')
-const OAuth2Data = require('../google_key.json')
 const http = require('http');
 const url = require('url');
 const fs = require('fs')
@@ -13,7 +12,7 @@ require('dotenv').config()
 
 const CLIENT_ID = process.env.CLIENT_ID
 const CLIENT_SECRET = process.env.CLIENT_SECRET
-const REDIRECT_URL = OAuth2Data.client.redirect
+const REDIRECT_URL = process.env.CLIENT_redirect
 const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL)
 var authed = false
 const CLIENT_ID_GH = process.env.CLIENT_ID_GH;
@@ -46,7 +45,7 @@ app.get('/', (req, res) => {
 })
 
 app.get('/login', function(req, res){
-  const redirectUrl = `https://salmon-mud-09c577e03.3.azurestaticapps.net/`
+  const redirectUrl = process.env.CLIENT_homepage;
   console.log(redirectUrl);
   console.log(CLIENT_ID);
 
@@ -90,7 +89,7 @@ app.get('/logoutGH', function(req, res) {
 });
 
 app.get('/auth/google/callback', function (req, res) {
-    const redirectUrl = `https://salmon-mud-09c577e03.3.azurestaticapps.net/`
+  const redirectUrl = 'http://localhost:3000';
     const code = req.query.code
     if (code) {
         oAuth2Client.getToken(code, function (err, tokens) {
@@ -133,7 +132,8 @@ app.get('/auth/github/callback', function (req, res) {
 });
 
 app.get('/getData', (req, res) => { 
-  const redirectUrl = `https://salmon-mud-09c577e03.3.azurestaticapps.net/`
+  const redirectUrl = 'http://localhost:3000';
+  console.log(authed);
   if (authed) {
     var oauth2 = google.oauth2({ auth: oAuth2Client, version: 'v2'});
     oauth2.userinfo.v2.me.get((err, result) =>{
@@ -146,8 +146,9 @@ app.get('/getData', (req, res) => {
         res.redirect(redirectUrl + `?message=${loggedUser}&picture=${result.data.picture}`);
       }
     });
+  } else {
+    res.redirect(redirectUrl + `?message=notAuthed`);
   }
-  res.redirect(redirectUrl + `?message=error}`);
 });
 
 const port = 5000
