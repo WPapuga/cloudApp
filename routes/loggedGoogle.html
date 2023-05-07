@@ -2,7 +2,7 @@
  
 <html>
     <head>
-        <title>JWT</title>
+        <title>CloudApp</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width">
         <link rel="stylesheet" href="style.css">
@@ -113,7 +113,6 @@
                 <a>Cloud App WP+</a>
             </div>
             <div class="NavLinks">
-                <a onclick="window.location.href = '/';">Strona Główna</a>
                 <a onclick="getData()"> Pobierz dane</a>
             </div>
             <div class="NavSigning">
@@ -132,7 +131,7 @@
             </table>
         </div>
         <script type="text/javascript">
-            
+
           function getData() {
             $.ajax({
               url: '/api/getData',

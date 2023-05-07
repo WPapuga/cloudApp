@@ -52,7 +52,8 @@ const getUsers = (request, response) => {
 function addUser(username) {
   const currentDate = new Date();
   const date = currentDate.toISOString();
-  pool.query(`INSERT INTO public."users" (name, joined, lastvisit, counter) VALUES ('${username}', '${date}', '${date}', 1)`, (error, res) => {
+  console.log(username + " " + date);
+  pool.query(`INSERT INTO public."users" (name, joined, lastvisit, counter) VALUES ('${username}', ${date}, ${date}, 1)`, (error, res) => {
     if (error) {
       console.log("Błąd lub użytkownik już istnieje w tabeli");
       pool.query(`UPDATE public."users" SET lastvisit = ${date}, counter = counter + 1 WHERE name = '${username}'`, (err, resp) => {
@@ -164,11 +165,13 @@ app.get('/auth/github/callback', function (req, res) {
 });
 
 app.get('/api/getData', function (req, res) {
-  pool.query('SELECT * FROM public."users"', (error, result) => { 
-    if (error) throw error;
-    console.log(result.rows);
-    res.send(result.rows);
-  });
+  if( authed || authed_gh) {
+    pool.query('SELECT * FROM public."users"', (error, result) => { 
+      if (error) throw error;
+      console.log(result.rows);
+      res.send(result.rows);
+    });
+  }
 });
 
 const port = 5000
