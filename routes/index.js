@@ -12,7 +12,7 @@ require('dotenv').config()
 
 const CLIENT_ID = process.env.CLIENT_ID
 const CLIENT_SECRET = process.env.CLIENT_SECRET
-const REDIRECT_URL = process.env.CLIENT_redirect
+const REDIRECT_URL = 'https://cloudappwp.azurewebsites.net/auth/google/callback'
 const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL)
 var authed = false
 const CLIENT_ID_GH = process.env.CLIENT_ID_GH;
