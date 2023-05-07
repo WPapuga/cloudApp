@@ -58,6 +58,8 @@ app.get('/login', function(req, res){
     });
     console.log(URL)
     res.redirect(URL);
+  } else {
+    res.redirect(URL + '?tokken="alread logged in"');
   }
 })
 
