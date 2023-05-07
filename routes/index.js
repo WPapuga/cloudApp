@@ -57,9 +57,9 @@ app.get('/login', function(req, res){
       scope: 'https://www.googleapis.com/auth/userinfo.profile'
     });
     console.log(URL)
-    res.redirect(URL);
+    res.redirect(redirectUrl);
   } else {
-    res.redirect(URL + '?tokken="alread logged in"');
+    res.redirect(redirectUrl + '?tokken="alread logged in"');
   }
 })
 
