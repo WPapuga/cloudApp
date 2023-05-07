@@ -149,6 +149,21 @@
             });
           }
 
+          function loadPage() {
+            $.ajax({
+              url: '/api/getUsername',
+              type: 'GET',
+              dataType: 'json',
+              success: function(data) {
+                document.getElementById('usernameP').innerHTML = data.username;
+              },
+              error: function(data) {
+                alert("error");
+              }
+            });
+          }
+
+
           function createRow(name, joinedDate, lastVisit, counter) {
             const table = document.getElementById('dataTable');
             var row = table.insertRow();

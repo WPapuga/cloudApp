@@ -15,6 +15,7 @@ const CLIENT_SECRET = process.env.CLIENT_SECRET
 const REDIRECT_URL = 'https://cloudappwp.azurewebsites.net/auth/google/callback'
 const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL)
 var authed = false
+var loggedUser;
 const CLIENT_ID_GH = process.env.CLIENT_ID_GH;
 const CLIENT_SECRET_GH = process.env.CLIENT_SECRET_GH;
 const gh_link = `https://github.com/login/oauth/authorize?client_id=` + CLIENT_ID_GH + 
@@ -98,11 +99,13 @@ app.get('/loginGH', function(req, res) {
 
 app.get('/logout', function(req, res) {
   authed = false;
+  loggedUser = null;
   const filePath = path.join(__dirname, 'index.html');
   res.sendFile(filePath);
 });
 app.get('/logoutGH', function(req, res) {
   authed_gh = false;
+  loggedUser = null;
   const filePath = path.join(__dirname, 'index.html');
   res.sendFile(filePath);
 });
@@ -126,7 +129,7 @@ app.get('/auth/google/callback', function (req, res) {
                     console.log(err);
                     res.send("Error przy pobieraniu informacji o użytkowniku");
                   } else {
-                    var loggedUser = result.data.name;
+                    loggedUser = result.data.name;
                     console.log(loggedUser);
                     console.log(authed);
                     addUser(loggedUser);
@@ -159,7 +162,8 @@ app.get('/auth/github/callback', function (req, res) {
   if (code) {
     token_gh = getToken(code);
     authed_gh = true;
-    addUser('tempGHuser');
+    loggedUser = 'tempGHuser';
+    addUser(loggedUser);
     const filePath = path.join(__dirname, 'loggedGithub.html');
     res.sendFile(filePath);
   }
@@ -174,6 +178,15 @@ app.get('/api/getData', function (req, res) {
       console.log(result.rows);
       res.send(result.rows);
     });
+  } else {
+    res.send("Nie jesteś zalogowany");
+  }
+});
+
+app.get('/api/getUsername', function (req, res) {
+  console.log(authed + " " + authed_gh);
+  if( authed || authed_gh) {
+    res.send({username: loggedUser});
   } else {
     res.send("Nie jesteś zalogowany");
   }
