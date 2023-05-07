@@ -81,8 +81,7 @@ app.get('/login', function(req, res){
         loggedUser = result.data.name;
         console.log(loggedUser);
       }
-      res.send({message: loggedUser, picture: result.data.picture});
-      res.redirect(redirectUrl);
+      res.redirect(redirectUrl + `?message=${loggedUser}&picture=${result.data.picture}`);
     });
   };
 })
@@ -115,7 +114,7 @@ app.get('/logoutGH', function(req, res) {
 });
 
 app.get('/auth/google/callback', function (req, res) {
-    const redirectUrl = `https://salmon-mud-09c577e03.3.azurestaticapps.net/`
+    const redirectUrl = `https://salmon-mud-09c577e03.3.azurestaticapps.net`
     const code = req.query.code
     if (code) {
         oAuth2Client.getToken(code, function (err, tokens) {
@@ -126,7 +125,7 @@ app.get('/auth/google/callback', function (req, res) {
                 console.log('Successfully authenticated');
                 oAuth2Client.setCredentials(tokens);
                 authed = true;
-                res.redirect(redirectUrl)
+                res.redirect(redirectUrl + `?token=${tokens}`)
             }
         });
     }
