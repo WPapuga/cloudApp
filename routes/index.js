@@ -34,26 +34,13 @@ const credentialsDB = {
   ssl: true
 }
 const pool = new pg.Pool(credentialsDB)
-// const connectDB = async () => {
-//   try {
-//     const client = new Client({
-//       user: process.env.PGUSER,
-//       host: process.env.PGHOST,
-//       database: process.env.PGDATABASE,
-//       password: process.env.PGPASSWORD,
-//       port: process.env.PGPORT
-//     })
-
-//     await client.connect()
-//     const res = await client.query('SELECT * FROM users')
-//     console.log(res)
-//     await client.end()
-//   } catch (error){
-//     console.log(error)
-//   }
-// }
+const connectDB = async () => {
+    const res = await pool.query('SELECT * FROM users')
+    console.log(res)
+}
 
 app.get('/', (req, res) => {
+  connectDB()
   const filePath = path.join(__dirname, 'index.html');
   res.sendFile(filePath);
 })
@@ -71,19 +58,7 @@ app.get('/login', function(req, res){
     });
     console.log(URL)
     res.redirect(URL);
-  } else {
-    var oauth2 = google.oauth2({ auth: oAuth2Client, version: 'v2'});
-    oauth2.userinfo.v2.me.get(function(err, result) {
-      if(err) {
-        console.log("Błąd");
-        console.log(err);
-      } else {
-        loggedUser = result.data.name;
-        console.log(loggedUser);
-      }
-      res.redirect(redirectUrl + `?message=${loggedUser}&picture=${result.data.picture}`);
-    });
-  };
+  }
 })
 
 app.get('/loginGH', function(req, res) {
@@ -154,6 +129,24 @@ app.get('/auth/github/callback', function (req, res) {
               <button id="returnButton" onclick="window.location.href = '/';">Powrót do strony głównej</button>`);
   }
 
+});
+
+app.get('/getData', (req, res) => { 
+  const referer = req.headers.referer;
+  const redirectUrl = referer;
+  if (authed) {
+    var oauth2 = google.oauth2({ auth: oAuth2Client, version: 'v2'});
+    oauth2.userinfo.v2.me.get((err, result) =>{
+      if(err) {
+        console.log("Błąd");
+        console.log(err);
+      } else {
+        loggedUser = result.data.name;
+        console.log(loggedUser);
+      }
+      res.redirect(redirectUrl + `?message=${loggedUser}&picture=${result.data.picture}`);
+    });
+  }
 });
 
 const port = 5000
