@@ -40,7 +40,7 @@ const connectDB = async () => {
 
 const getUsers = (request, response) => {
   console.log('Pobieram dane ...');
-  pool.query('SELECT * FROM public."users"', (error, res) => {
+  pool.query('SELECT * FROM public.users', (error, res) => {
     if (error) throw error
     console.log('Dostałem ...');
     for (let row of res.rows) {
@@ -53,11 +53,11 @@ function addUser(username) {
   const currentDate = new Date();
   const date = currentDate.toISOString();
   console.log(username + " " + date);
-  pool.query(`INSERT INTO public."users" (name, joined, lastvisit, counter) VALUES ('${username}', ${date}, ${date}, 1)`, (error, res) => {
+  pool.query(`INSERT INTO public.users (name, joined, lastvisit, counter) VALUES ('${username}', '${date}', '${date}', 1)`, (error, res) => {
     if (error) {
       console.log(error);
       console.log("Błąd lub użytkownik już istnieje w tabeli");
-      pool.query(`UPDATE public."users" SET lastvisit = ${date}, counter = counter + 1 WHERE name = '${username}'`, (err, resp) => {
+      pool.query(`UPDATE public."users" SET lastvisit = '${date}', counter = counter + 1 WHERE name = '${username}'`, (err, resp) => {
         if (err) throw err;
         else {
           console.log('Zakutalizowano ...');
@@ -167,12 +167,15 @@ app.get('/auth/github/callback', function (req, res) {
 });
 
 app.get('/api/getData', function (req, res) {
+  console.log(authed + " " + authed_gh);
   if( authed || authed_gh) {
     pool.query('SELECT * FROM public."users"', (error, result) => { 
       if (error) throw error;
       console.log(result.rows);
       res.send(result.rows);
     });
+  } else {
+    res.send("Nie jesteś zalogowany");
   }
 });
 
