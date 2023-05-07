@@ -56,7 +56,7 @@ function addUser(username) {
   pool.query(`INSERT INTO public.users (name, joined, lastvisit, counter) VALUES ('${username}', '${date}', '${date}', 1)`, (error, res) => {
     if (error) {
       console.log(error);
-      console.log("Błąd lub użytkownik już istnieje w tabeli");
+      console.log("Błąd lub użytkownik już istnieje w tabeli ");
       pool.query(`UPDATE public."users" SET lastvisit = '${date}', counter = counter + 1 WHERE name = '${username}'`, (err, resp) => {
         if (err) throw err;
         else {
