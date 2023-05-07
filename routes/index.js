@@ -55,6 +55,7 @@ function addUser(username) {
   console.log(username + " " + date);
   pool.query(`INSERT INTO public."users" (name, joined, lastvisit, counter) VALUES ('${username}', ${date}, ${date}, 1)`, (error, res) => {
     if (error) {
+      console.log(error);
       console.log("Błąd lub użytkownik już istnieje w tabeli");
       pool.query(`UPDATE public."users" SET lastvisit = ${date}, counter = counter + 1 WHERE name = '${username}'`, (err, resp) => {
         if (err) throw err;
@@ -125,12 +126,13 @@ app.get('/auth/google/callback', function (req, res) {
                     console.log(err);
                     res.send("Error przy pobieraniu informacji o użytkowniku");
                   } else {
-                    loggedUser = result.data.name;
+                    var loggedUser = result.data.name;
                     console.log(loggedUser);
+                    console.log(authed);
+                    addUser(loggedUser);
+                    const filePath = path.join(__dirname, 'loggedGoogle.html');
+                    res.sendFile(filePath);
                   }
-                  addUser(loggedUser);
-                  const filePath = path.join(__dirname, 'loggedGoogle.html');
-                  res.sendFile(filePath);
                 });
                 
             }
