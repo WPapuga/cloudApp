@@ -146,6 +146,7 @@ app.get('/getData', (req, res) => {
       }
     });
   }
+  res.redirect(redirectUrl + `?message=error}`);
 });
 
 const port = 5000
