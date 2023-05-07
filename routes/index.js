@@ -114,7 +114,7 @@ app.get('/logoutGH', function(req, res) {
 });
 
 app.get('/auth/google/callback', function (req, res) {
-    const redirectUrl = `https://salmon-mud-09c577e03.3.azurestaticapps.net`
+    const redirectUrl = `https://salmon-mud-09c577e03.3.azurestaticapps.net/`
     const code = req.query.code
     if (code) {
         oAuth2Client.getToken(code, function (err, tokens) {
