@@ -1,14 +1,4 @@
-<!DOCTYPE html>
- 
-<html>
-    <head>
-        <title>JWT</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width">
-        <link rel="stylesheet" href="style.css">
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <style>
-            
+
 .Navbar {
   background-color: blue;
   border-bottom-color: #30CB70;
@@ -90,29 +80,3 @@
   border-color: #30CB70;
   color: white;
 }  
-
-        </style>
-    </head>
-    <body>
-        <div class="Navbar">
-            <div class="NavLeftSide">
-                <a>Cloud App WP+</a>
-            </div>
-            <div class="NavLinks">
-                <a href="http://localhost:3000/">Strona Główna</a>
-                <a href='http://localhost:5000/getData'> Pobierz dane</a>
-            </div>
-            <div class="NavSigning">
-                <a href='http://localhost:5000/login'> Zaloguj się Google</a>
-                <a href='http://localhost:5000/loginGH'>Zaloguj się Github</a>
-            </div>
-        </div>
-        <div>
-            <button id="loginButton" onclick="window.location.href = '/login';">Zaloguj się przez Google!</button><br>
-            <button id="loginGhButton" onclick="window.location.href = '/loginGH';">Zaloguj się przez GitHub!</button><br>
-
-        </div>
-        <script type="text/javascript">
-        </script>
-    </body>
-</html>
