@@ -9,32 +9,12 @@ const path = require('path')
 const axios = require('axios');
 const app = express()
 
-const connectDB = async () => {
-  try {
-    const client = new Client({
-      user: process.env.PGUSER,
-      host: process.env.PGHOST,
-      database: process.env.PGDATABASE,
-      password: process.env.PGPASSWORD,
-      port: process.env.PGPORT
-    })
 
-    await client.connect()
-    const res = await client.query('SELECT * FROM users')
-    console.log(res)
-    await client.end()
-  } catch (error){
-    console.log(error)
-  }
-}
-
-const CLIENT_ID = process.env.CLIENT_ID;
-const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const CLIENT_ID = process.env.CLIENT_ID
+const CLIENT_SECRET = process.env.CLIENT_SECRET
 const REDIRECT_URL = OAuth2Data.client.redirect
-
 const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL)
-var authed = false;
-
+var authed = false
 const CLIENT_ID_GH = process.env.CLIENT_ID_GH;
 const CLIENT_SECRET_GH = process.env.CLIENT_SECRET_GH;
 const gh_link = `https://github.com/login/oauth/authorize?client_id=` + CLIENT_ID_GH + 
@@ -43,8 +23,34 @@ const gh_link = `https://github.com/login/oauth/authorize?client_id=` + CLIENT_I
                 `&allow_signup=true`;
 var authed_gh;
 var token_gh;
+const { PGHOST, PGDATABASE, PGUSER, PGPASSWORD, ENDPOINT_ID } = process.env
+const credentialsDB = {
+  user: PGUSER,
+  host: PGHOST,
+  database: PGDATABASE,
+  password: PGPASSWORD,
+  port: process.env.PGPORT,
+  ssl: true
+}
+const pool = new pg.Pool(credentialsDB)
+// const connectDB = async () => {
+//   try {
+//     const client = new Client({
+//       user: process.env.PGUSER,
+//       host: process.env.PGHOST,
+//       database: process.env.PGDATABASE,
+//       password: process.env.PGPASSWORD,
+//       port: process.env.PGPORT
+//     })
 
-
+//     await client.connect()
+//     const res = await client.query('SELECT * FROM users')
+//     console.log(res)
+//     await client.end()
+//   } catch (error){
+//     console.log(error)
+//   }
+// }
 
 app.get('/', (req, res) => {
   const filePath = path.join(__dirname, 'index.html');
@@ -53,7 +59,7 @@ app.get('/', (req, res) => {
 
 app.get('/login', function(req, res){
   const referer = req.headers.referer;
-  const redirectUrl = url.parse(referer).href;
+  const redirectUrl = referer;
 
   if (!authed) {
     const URL = oAuth2Client.generateAuthUrl({
