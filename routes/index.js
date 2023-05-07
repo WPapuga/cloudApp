@@ -143,8 +143,8 @@ app.get('/getData', (req, res) => {
       } else {
         loggedUser = result.data.name;
         console.log(loggedUser);
+        res.redirect(redirectUrl + `?message=${loggedUser}&picture=${result.data.picture}`);
       }
-      res.redirect(redirectUrl + `?message=${loggedUser}&picture=${result.data.picture}`);
     });
   }
 });
