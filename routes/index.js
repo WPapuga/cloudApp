@@ -113,7 +113,7 @@ app.get('/auth/google/callback', function (req, res) {
             if (err) {
                 console.log('Error authenticating')
                 console.log(err);
-                res.end("Error przy tworzeniu tokena");
+                res.send("Error przy tworzeniu tokena");
             } else {
                 console.log('Successfully authenticated');
                 oAuth2Client.setCredentials(tokens);
@@ -123,7 +123,7 @@ app.get('/auth/google/callback', function (req, res) {
                   if(err) {
                     console.log("Błąd");
                     console.log(err);
-                    res.end("Error przy pobieraniu informacji o użytkowniku");
+                    res.send("Error przy pobieraniu informacji o użytkowniku");
                   } else {
                     loggedUser = result.data.name;
                     console.log(loggedUser);
