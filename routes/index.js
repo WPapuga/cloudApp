@@ -14,7 +14,7 @@ const CLIENT_ID = process.env.CLIENT_ID
 const CLIENT_SECRET = process.env.CLIENT_SECRET
 const REDIRECT_URL = 'https://cloudappwp.azurewebsites.net/auth/google/callback'
 const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL)
-var authed = false
+var authed = true
 var loggedUser;
 const CLIENT_ID_GH = process.env.CLIENT_ID_GH;
 const CLIENT_SECRET_GH = process.env.CLIENT_SECRET_GH;
@@ -187,6 +187,59 @@ app.get('/api/getUsername', function (req, res) {
   console.log(authed + " " + authed_gh);
   if( authed || authed_gh) {
     res.send({username: loggedUser});
+  } else {
+    res.send("Nie jesteś zalogowany");
+  }
+});
+
+app.get('/api/getDBName', function (req, res) {
+  console.log(authed + " " + authed_gh);
+  if( authed || authed_gh) {
+    pool.query('SELECT current_database()', (error, result) => { 
+      if (error) throw error;
+      console.log(result.rows[0].current_database);
+      res.send({dbname: result.rows[0].current_database});
+    });
+  } else {
+    res.send("Nie jesteś zalogowany");
+  }
+});
+
+app.get('/api/getTables', function (req, res) {
+  console.log(authed + " " + authed_gh);
+  if( authed || authed_gh) {
+    pool.query(`SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'`, (error, result) => { 
+      if (error) throw error;
+      console.log(result.rows);
+      res.send(result.rows);
+    });
+  } else {
+    res.send("Nie jesteś zalogowany");
+  }
+});
+
+app.get('/api/getColumns', function (req, res) {
+  const tableName = req.query.table;
+  if( authed || authed_gh) {  
+    pool.query(`SELECT * FROM information_schema.columns
+                WHERE table_schema = 'public'
+                AND table_name   = '${tableName}'`, (error, result) => { 
+      if (error) throw error;
+      res.send(result.rows);
+    });
+  } else {
+    res.send("Nie jesteś zalogowany");
+  }
+});
+
+
+app.get('/api/getTableData', function (req, res) {
+  const tableName = req.query.table;
+  if( authed || authed_gh) {  
+    pool.query(`SELECT * FROM ${tableName}`, (error, result) => { 
+      if (error) throw error;
+      res.send(result.rows);
+    });
   } else {
     res.send("Nie jesteś zalogowany");
   }

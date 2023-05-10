@@ -105,15 +105,58 @@
             background-color: #f2f2f2;
             color: #333;
           } 
+
+          .tableDropdownButton {
+            background-color: #04AA6D;
+            color: white;
+            padding: 16px;
+            font-size: 16px;
+            border: none;
+          }
+
+          .tableDropdown {
+            position: relative;
+            display: inline-block;
+          }
+
+          .tableDropdownContent {
+            display: none;
+            position: absolute;
+            background-color: #f1f1f1;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+          }
+
+          .tableDropdownContent a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+          }
+
+          .tableDropdownContent a:hover {background-color: #ddd;}
+
+          .tableDropdown:hover .tableDropdownContent {display: block;}
+
+          .tableDropdown:hover .tableDropdownButton {background-color: #3e8e41;}
         </style>
     </head>
     <body onload="loadPage()">
         <div class="Navbar">
             <div class="NavLeftSide">
-                <a>Cloud App WP+</a>
+                <a>DB browser</a>
             </div>
             <div class="NavLinks">
                 <a onclick="window.location.href = '/';">Strona Główna</a>
+                <a id="dbName"></a>
+                <div class="tableDropdown">
+                  <input class="tableDropdownButton" type="button" value="Wybierz tabelę"  id="drpbtn" />
+                  <div class="tableDropdownContent">
+
+                  </div>
+                </div>
+                <button onclick="getTableData()">pokaż zawartość tabeli</button>
             </div>
             <div class="NavSigning">
                 <p id="usernameP"></p>
@@ -134,6 +177,8 @@
         </div>
         <script type="text/javascript">
           sessionStorage.setItem('isLogged', 'false');
+          sessionStorage.setItem('selectedTable', '');
+          const dataTable = document.getElementById('dataTable');
 
           function loadPage() {
             if (sessionStorage.getItem('isLogged') == 'true') {
@@ -147,6 +192,41 @@
               document.getElementById('logout').style.display = 'none';
               document.getElementById('usernameP').innerHTML = ' ';
             }
+            $.ajax({
+              url: '/api/getDBName',
+              type: 'GET',
+              dataType: 'json',
+              success: function(data) {
+                document.getElementById('dbName').innerHTML = data.dbname;
+              },
+              error: function(data) {
+                alert("error");
+              }
+            });
+            $.ajax({
+              url: '/api/getTables',
+              type: 'GET',
+              dataType: 'json',
+              success: function(data) {
+                for (var i = 0; i < data.length; i++) {
+                  var a = document.createElement('a');
+                  a.innerHTML = data[i].table_name;
+                  a.setAttribute("onclick","changeTable(this);");
+                  document.getElementsByClassName('tableDropdownContent')[0].appendChild(a);
+                }
+                console.log(data)
+              },
+              error: function(data) {
+                alert("error");
+              }
+            });
+          
+          }
+
+          function changeTable(a) {
+            var name = a.innerHTML;
+            document.getElementById("drpbtn").value = name;
+            sessionStorage.setItem('selectedTable', name)
           }
 
           function getData() {
@@ -164,6 +244,51 @@
                 alert("error");
               }
             });
+          }
+
+          function getTableData() {
+            if(sessionStorage.getItem('selectedTable') == '') {
+              alert('Wybierz tabelę!');
+              return;
+            } else {
+              $("#dataTable tr").remove();
+              var tableName = sessionStorage.getItem('selectedTable');
+              $.ajax({
+                url: `/api/getColumns?table=${tableName}`,
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                  var header = dataTable.createTHead();
+                  console.log(data[0].column_name);
+                  var row = header.insertRow(0);
+                  for(var i = 0; i < data.length; i++) {
+                    row.insertCell(i).innerHTML = data[i].column_name;
+                  }
+                  $.ajax({
+                    url: `/api/getTableData?table=${tableName}`,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(tableData) {
+                      console.log(tableData);
+                      for(var i = 0; i < tableData.length; i++) {
+                        var row = dataTable.insertRow();
+                        var j = 0;
+                        for(value in tableData[i]) {
+                          row.insertCell(j).innerHTML =  tableData[i][value];
+                          j++;
+                        }
+                      }
+                    },
+                    error: function(tableData) {
+                      alert("error");
+                    }
+                  });
+                },
+                error: function(data) {
+                  alert("error");
+                }
+              });
+            }
           }
 
           function createRow(name, joinedDate, lastVisit, counter) {

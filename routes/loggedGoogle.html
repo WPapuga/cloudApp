@@ -150,6 +150,7 @@
             </div>
             <div class="NavLinks">
                 <a onclick="getData()"> Pobierz dane</a>
+                <a id="dbName"></a>
             </div>
             <div class="NavSigning">
                 <p id="usernameP"></p>
@@ -214,6 +215,17 @@
               dataType: 'json',
               success: function(data) {
                 document.getElementById('usernameP').innerHTML = data.username + ' (Google)';
+              },
+              error: function(data) {
+                alert("error");
+              }
+            });
+            $.ajax({
+              url: '/api/getDBName',
+              type: 'GET',
+              dataType: 'json',
+              success: function(data) {
+                document.getElementById('dbName').innerHTML = data.dbName;
               },
               error: function(data) {
                 alert("error");
