@@ -1,5 +1,6 @@
 const { google } = require('googleapis')
 const express = require('express')
+const bodyParser = require('body-parser');
 const pg = require('pg')
 const http = require('http');
 const url = require('url');
@@ -70,10 +71,13 @@ function addUser(username) {
   })
 }
 
+app.use(bodyParser.json());
+
 app.get('/', (req, res) => {
   const filePath = path.join(__dirname, 'index.html');
   res.sendFile(filePath);
 })
+
 app.get('/login', function(req, res){
   if (!authed) {
     const URL = oAuth2Client.generateAuthUrl({
@@ -239,6 +243,72 @@ app.get('/api/getTableData', function (req, res) {
     pool.query(`SELECT * FROM ${tableName}`, (error, result) => { 
       if (error) throw error;
       res.send(result.rows);
+    });
+  } else {
+    res.send("Nie jesteś zalogowany");
+  }
+});
+
+app.post('/api/insertRow', function (req, res) {
+  const tableName = req.body.tableName;
+  const row = req.body.row;
+  if( authed || authed_gh) {  
+    var SQLstmt = `INSERT INTO ${tableName}(`
+    for (var key in row) {
+      SQLstmt += key + ", ";
+    }
+    SQLstmt = SQLstmt.slice(0, -2) + ") VALUES (";;   
+    for (var key in row) {
+      SQLstmt += "'" + row[key] + "', ";
+    }
+    SQLstmt = SQLstmt.slice(0, -2) + ");";; 
+    console.log(SQLstmt);
+    pool.query(SQLstmt, (error, result) => { 
+      if (error) throw error;
+      res.send("Dodano wiersz");
+    });
+  } else {
+    res.send("Nie jesteś zalogowany");
+  }
+});
+
+app.delete('/api/deleteRow', function (req, res) {
+  const tableName = req.body.tableName;
+  const row = req.body.row;
+  if( authed || authed_gh) {  
+    var SQLstmt = `DELETE FROM ${tableName} WHERE`
+    for (var key in row) {
+      SQLstmt += " " + key + " = '" + row[key] + "' AND";
+    }
+    SQLstmt = SQLstmt.slice(0, -4) + ";";;
+    console.log(SQLstmt);
+    pool.query(SQLstmt, (error, result) => { 
+      if (error) throw error;
+      res.send("Usunięto wiersz");
+    });
+  } else {
+    res.send("Nie jesteś zalogowany");
+  }
+});
+
+app.put('/api/editRow', function (req, res) {
+  const tableName = req.body.tableName;
+  const row = req.body.row;
+  const rowToBeEdited = req.body.rowToBeEdited;
+  if( authed || authed_gh) {  
+    var SQLstmt = `UPDATE ${tableName} SET`
+    for (var key in row) {
+      SQLstmt += " " + key + " = '" + row[key] + "',";
+    }
+    SQLstmt = SQLstmt.slice(0, -1) + " WHERE";
+    for (var key in rowToBeEdited) {
+      SQLstmt += " " + key + " = '" + rowToBeEdited[key] + "' AND";
+    }
+    SQLstmt = SQLstmt.slice(0, -4) + ";";;
+    console.log(SQLstmt);
+    pool.query(SQLstmt, (error, result) => { 
+      if (error) throw error;
+      res.send("Zaktualizowano wiersz");
     });
   } else {
     res.send("Nie jesteś zalogowany");

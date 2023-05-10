@@ -112,6 +112,20 @@
             padding: 16px;
             font-size: 16px;
             border: none;
+            margin-left: 20px;
+          }
+           
+          .getDataButton {
+            background-color: #04AA6D;
+            color: white;
+            padding: 16px;
+            font-size: 16px;
+            border: none;
+            margin-left: 20px;
+          }
+
+          .getDataButton:hover {
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
           }
 
           .tableDropdown {
@@ -153,10 +167,9 @@
                 <div class="tableDropdown">
                   <input class="tableDropdownButton" type="button" value="Wybierz tabelę"  id="drpbtn" />
                   <div class="tableDropdownContent">
-
                   </div>
                 </div>
-                <button onclick="getTableData()">pokaż zawartość tabeli</button>
+                <button class = "getDataButton" onclick="getTableData()">pokaż zawartość tabeli</button>
             </div>
             <div class="NavSigning">
                 <p id="usernameP"></p>
@@ -168,10 +181,6 @@
         <div>
             <table id="dataTable">
               <tr>
-                <th>name</th>
-                <th>joined date</th>
-                <th>last visit</th>
-                <th>counter</th>
               </tr>
             </table>
         </div>
@@ -179,6 +188,8 @@
           sessionStorage.setItem('isLogged', 'false');
           sessionStorage.setItem('selectedTable', '');
           const dataTable = document.getElementById('dataTable');
+          var headerRow = dataTable.rows[0];
+          var tempRow = [];
 
           function loadPage() {
             if (sessionStorage.getItem('isLogged') == 'true') {
@@ -197,7 +208,7 @@
               type: 'GET',
               dataType: 'json',
               success: function(data) {
-                document.getElementById('dbName').innerHTML = data.dbname;
+                document.getElementById('dbName').innerHTML = "Połączono z: " + data.dbname;
               },
               error: function(data) {
                 alert("error");
@@ -220,30 +231,12 @@
                 alert("error");
               }
             });
-          
           }
 
           function changeTable(a) {
             var name = a.innerHTML;
             document.getElementById("drpbtn").value = name;
             sessionStorage.setItem('selectedTable', name)
-          }
-
-          function getData() {
-            $.ajax({
-              url: '/api/getData',
-              type: 'GET',
-              dataType: 'json',
-              success: function(data) {
-                data.forEach(function(item) {
-                  createRow(item.name, item.joined, item.lastvisit, item.counter);
-                  alert(item.data);
-                });
-              },
-              error: function(data) {
-                alert("error");
-              }
-            });
           }
 
           function getTableData() {
@@ -260,16 +253,21 @@
                 success: function(data) {
                   var header = dataTable.createTHead();
                   console.log(data[0].column_name);
-                  var row = header.insertRow(0);
+                  headerRow = header.insertRow(0);
                   for(var i = 0; i < data.length; i++) {
-                    row.insertCell(i).innerHTML = data[i].column_name;
+                    headerRow.insertCell(i).innerHTML = data[i].column_name;
                   }
+                  var inputRow = dataTable.insertRow();
+                  for(var i = 0; i < data.length; i++) {
+                    inputRow.insertCell(i).innerHTML = '<input type="text" id="newRowInput' + i + '">';
+                  }
+                  inputRow.insertCell(data.length).innerHTML = '<button onclick="createRow(this)">Dodaj</button>';
                   $.ajax({
                     url: `/api/getTableData?table=${tableName}`,
                     type: 'GET',
                     dataType: 'json',
                     success: function(tableData) {
-                      console.log(tableData);
+                      console.log("Sukces pobierania danych z tabeli");
                       for(var i = 0; i < tableData.length; i++) {
                         var row = dataTable.insertRow();
                         var j = 0;
@@ -277,7 +275,11 @@
                           row.insertCell(j).innerHTML =  tableData[i][value];
                           j++;
                         }
+                        row.insertCell(j).innerHTML = '<button onclick="deleteRow(this)">Usuń</button>';
+                        row.insertCell(j+1).innerHTML = '<button onclick="editRow(this)">Edytuj</button>';
+                        row.insertCell(j+2).innerHTML = '<button onclick="saveRow(this)">Zapisz</button>';
                       }
+                      console.log("koniec pobierania danych z tabeli");
                     },
                     error: function(tableData) {
                       alert("error");
@@ -290,14 +292,101 @@
               });
             }
           }
+          
+          function createRow(button) {
+            var row = button.parentNode.parentNode;
+            var newRow = { tableName: sessionStorage.getItem('selectedTable'), row: {} }
+            for (var i = 0; i < headerRow.cells.length; i++) {
+              newRow.row[headerRow.cells[i].innerText] = document.getElementById('newRowInput' + i).value;
+            }
+            $.ajax('/api/insertRow', {
+              data: JSON.stringify(newRow),
+              contentType : 'application/json',
+              type: 'POST',
+              success: function(response) {
+                //popup ładniejszy
+                getTableData();
+                alert(response);
+              },
+              error: function(response) {
+                //popup ładniejszy
+                alert(response);
+              }
+            });
+          }
 
-          function createRow(name, joinedDate, lastVisit, counter) {
-            const table = document.getElementById('dataTable');
-            var row = table.insertRow();
-            row.insertCell(0).innerHTML = name;
-            row.insertCell(1).innerHTML = joinedDate;
-            row.insertCell(2).innerHTML = lastVisit;
-            row.insertCell(3).innerHTML = counter;
+          function deleteRow(button) {
+            var row = button.parentNode.parentNode;
+            var rowToBeDeleted = { tableName: sessionStorage.getItem('selectedTable'), row: {} }
+            for (var i = 0; i < headerRow.cells.length; i++) {
+              rowToBeDeleted.row[headerRow.cells[i].innerText] = row.cells[i].innerText
+            }
+            console.log(rowToBeDeleted)
+            $.ajax('/api/deleteRow', {
+              data: JSON.stringify(rowToBeDeleted),
+              contentType : 'application/json',
+              type: 'DELETE',
+              success: function(response) {
+                //popup ładniejszy
+                getTableData();
+                alert(response);
+              },
+              error: function(response) {
+                //popup ładniejszy
+                alert(response);
+              }
+            });
+          }
+
+          function editRow(button) {
+            var row = button.parentNode.parentNode;
+            if(tempRow.length == 0) {
+              for (var i = 0; i < headerRow.cells.length; i++) {
+                var value = row.cells[i].innerText
+                tempRow.push(value);
+                row.cells[i].innerHTML = '<input type="text" id="editRowInput' + i + '" value="' + value + '">';
+              }
+              for (var i = 2; i < dataTable.rows.length; i++){
+                dataTable.rows[i].cells[headerRow.cells.length + 1].querySelector('button').disabled = true;
+                dataTable.rows[i].cells[headerRow.cells.length + 2].querySelector('button').disabled = true;
+              }
+              button.disabled = false;
+              row.cells[headerRow.cells.length + 2].querySelector('button').disabled = false;
+            } else {
+              for (var i = 0; i < headerRow.cells.length; i++){
+                row.cells[i].innerHTML = tempRow[i];
+              }
+              for (var i = 2; i < dataTable.rows.length; i++){
+                dataTable.rows[i].cells[headerRow.cells.length + 1].querySelector('button').disabled = false;
+                dataTable.rows[i].cells[headerRow.cells.length + 2].querySelector('button').disabled = false;
+              }
+              tempRow = []
+            }
+          }
+
+          function saveRow(button) {
+            var row = button.parentNode.parentNode;
+            var rowToBeSaved = { tableName: sessionStorage.getItem('selectedTable'), row: {}, rowToBeEdited: {}}
+            for (var i = 0; i < headerRow.cells.length; i++) {
+              rowToBeSaved.row[headerRow.cells[i].innerText] = row.cells[i].querySelector('input').value
+              rowToBeSaved.rowToBeEdited[headerRow.cells[i].innerText] = tempRow[i]
+            }
+            $.ajax('/api/editRow', {
+              data: JSON.stringify(rowToBeSaved),
+              contentType : 'application/json',
+              type: 'PUT',
+              success: function(response) {
+                //popup ładniejszy
+                getTableData();
+                tempRow = []
+                alert(response);
+              },
+              error: function(response) {
+                //popup ładniejszy
+                tempRow = []
+                alert(response);
+              }
+            });
           }
 
         </script>
