@@ -10,7 +10,7 @@ const axios = require('axios');
 const app = express()
 require('dotenv').config()
 
-
+app.use(express.static('public'));
 const CLIENT_ID = process.env.CLIENT_ID
 const CLIENT_SECRET = process.env.CLIENT_SECRET
 const REDIRECT_URL = 'https://cloudappwp.azurewebsites.net/auth/google/callback'
@@ -309,6 +309,46 @@ app.put('/api/editRow', function (req, res) {
     pool.query(SQLstmt, (error, result) => { 
       if (error) throw error;
       res.send("Zaktualizowano wiersz");
+    });
+  } else {
+    res.send("Nie jesteś zalogowany");
+  }
+});
+
+app.post('/api/execQuery', function (req, res) {
+  console.log(req.body.query)
+  if( authed || authed_gh) {  
+    var SQLstmt = req.body.query
+    pool.query(SQLstmt, (error, result) => { 
+      if (error) {
+        console.log(error)
+        res.send({message: "Error", error: error.message})
+      } else {
+        console.log(result)
+        var response = {
+          message: "Sukces",
+          rows: result.rows,
+          command: result.command,
+          rowCount: result.rowCount
+        }
+        res.send(response)
+      }
+    });
+  } else {
+    res.send("Nie jesteś zalogowany")
+  }
+});
+
+app.get('/api/sortTable', function (req, res) {
+  var tableName = req.query.tableName;
+  var columnName = req.query.columnName;
+  var order = req.query.order;
+
+  if( authed || authed_gh) {  
+    pool.query(`SELECT * FROM ${tableName} ORDER BY ${columnName} ${order}`, (error, result) => { 
+      if (error) throw error;
+      console.log(result.rows);
+      res.send(result.rows);
     });
   } else {
     res.send("Nie jesteś zalogowany");

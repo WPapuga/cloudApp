@@ -154,6 +154,91 @@
           .tableDropdown:hover .tableDropdownContent {display: block;}
 
           .tableDropdown:hover .tableDropdownButton {background-color: #3e8e41;}
+
+          .MainContent {
+            margin-top: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+          }
+
+          .MainContent a {
+            text-decoration: none;
+            color: black;
+            font-size: 40px;
+            font-family: Arial, Helvetica, sans-serif;
+          }
+
+          .QueryContainer {
+            margin-top: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
+
+          .QueryButton {
+            margin-top: 50px;
+            background-color: #04AA6D;
+            color: white;
+            padding: 16px 0 16px 0;
+            font-size: 16px;
+            border: none;
+            width: 100%;
+          }
+
+          .QueryButton:hover {
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+          }
+
+          .QueryInput {
+            font-size: 30px;
+            min-height: 50px;
+            width: 100%;
+          }
+
+          .MessageContainer {
+            margin-top: 50px;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            display: none;
+          }
+          
+          .QueryStatus {
+            font-size: 50px;
+            font-family: Arial, Helvetica, sans-serif;
+          }
+
+          .QueryMessage {
+            font-size: 40px;
+            font-family: Arial, Helvetica, sans-serif;
+          }
+
+          .ReturnButton {
+            margin-top: 50px;
+            background-color: #04AA6D;
+            color: white;
+            padding: 16px 0 16px 0;
+            font-size: 16px;
+            border: none;
+            width: 40%;
+          }
+
+          .ReturnButton:hover {
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+          }
+
+          .DownArrowImg {
+            width: 25px;
+            height: auto;
+          }
+
+          .UpArrowImg {
+            width: 25px;
+            height: auto;
+          }
+
         </style>
     </head>
     <body onload="loadPage()">
@@ -163,7 +248,6 @@
             </div>
             <div class="NavLinks">
                 <a onclick="window.location.href = '/';">Strona Główna</a>
-                <a id="dbName"></a>
                 <div class="tableDropdown">
                   <input class="tableDropdownButton" type="button" value="Wybierz tabelę"  id="drpbtn" />
                   <div class="tableDropdownContent">
@@ -171,12 +255,26 @@
                 </div>
                 <button class = "getDataButton" onclick="getTableData()">pokaż zawartość tabeli</button>
             </div>
-            <div class="NavSigning">
+            <!-- <div class="NavSigning">
                 <p id="usernameP"></p>
                 <a id="loginButton" onclick="window.location.href = '/login';">Zaloguj się przez Google!</a>
                 <a id="loginGhButton" onclick="window.location.href = '/loginGH';">Zaloguj się przez GitHub!</a>
                 <a id="logout" onclick="window.location.href = '/logout';">Wyloguj się</a>
-            </div>
+            </div> -->
+        </div>
+        <div class="MainContent">
+          <a id="dbName"></a>
+          <div class = "QueryContainer">
+            <form>
+              <textarea type="textarea" id="queryInput" class="QueryInput" placeholder="Wpisz zapytanie SQL" rows="5"></textarea>
+              <input type="button" id="queryButton" class="QueryButton" value="Wykonaj zapytanie" onclick="executeQuery()">
+            </form>
+          </div>
+        </div>
+        <div class="MessageContainer">
+          <h1 class="QueryStatus" id="queryStatus"></h1>
+          <p class="QueryMessage" id="queryMessage"></p>
+          <button class = "ReturnButton" onclick="window.location.href = '/';">Powrót do strony głównej</button>
         </div>
         <div>
             <table id="dataTable">
@@ -184,6 +282,7 @@
               </tr>
             </table>
         </div>
+        <a href="https://www.flaticon.com/free-icons/arrow" title="arrow icons">Arrow icons created by Freepik - Flaticon</a>
         <script type="text/javascript">
           sessionStorage.setItem('isLogged', 'false');
           sessionStorage.setItem('selectedTable', '');
@@ -192,43 +291,167 @@
           var tempRow = [];
 
           function loadPage() {
-            if (sessionStorage.getItem('isLogged') == 'true') {
-            document.getElementById('loginButton').style.display = 'none';
-            document.getElementById('loginGhButton').style.display = 'none';
-            document.getElementById('logout').style.display = 'block';
-            document.getElementById('usernameP').innerHTML = 'Zalogowany jako: ' + sessionStorage.getItem('username');
-            } else {
-              document.getElementById('loginButton').style.display = 'block';
-              document.getElementById('loginGhButton').style.display = 'block';
-              document.getElementById('logout').style.display = 'none';
-              document.getElementById('usernameP').innerHTML = ' ';
+            if(sessionStorage.getItem('sqlQuery') != '') {
+              document.getElementById('queryInput').value = sessionStorage.getItem('sqlQuery');
             }
+            // if (sessionStorage.getItem('isLogged') == 'true') {
+            // document.getElementById('loginButton').style.display = 'none';
+            // document.getElementById('loginGhButton').style.display = 'none';
+            // document.getElementById('logout').style.display = 'block';
+            // document.getElementById('usernameP').innerHTML = 'Zalogowany jako: ' + sessionStorage.getItem('username');
+            // } else {
+            //   document.getElementById('loginButton').style.display = 'block';
+            //   document.getElementById('loginGhButton').style.display = 'block';
+            //   document.getElementById('logout').style.display = 'none';
+            //   document.getElementById('usernameP').innerHTML = ' ';
+            // }
             $.ajax({
               url: '/api/getDBName',
               type: 'GET',
               dataType: 'json',
               success: function(data) {
                 document.getElementById('dbName').innerHTML = "Połączono z: " + data.dbname;
+                $.ajax({
+                  url: '/api/getTables',
+                  type: 'GET',
+                  dataType: 'json',
+                  success: function(data) {
+                    for (var i = 0; i < data.length; i++) {
+                      var a = document.createElement('a');
+                      a.innerHTML = data[i].table_name;
+                      a.setAttribute("onclick","changeTable(this);");
+                      document.getElementsByClassName('tableDropdownContent')[0].appendChild(a);
+                    }
+                    console.log(data)
+                  },
+                  error: function(data) {
+                    alert("error");
+                  }
+                });
               },
               error: function(data) {
                 alert("error");
               }
             });
+          }
+
+          function executeQuery() {
+            var query = {query: document.getElementById('queryInput').value}
+            sessionStorage.setItem('sqlQuery', query.query);
+            $.ajax('/api/execQuery', {
+              data: JSON.stringify(query),
+              contentType : 'application/json',
+              type: 'POST',
+              success: function(response) {
+                //popup ładniejszy
+                alert(response.message)
+                document.getElementsByClassName('MainContent')[0].style.display = 'none';
+                if(response.command == 'SELECT') {
+                  headerRow = dataTable.insertRow(0);
+                  var i = 0
+                  for (var columnName in response.rows[0]) {
+                    headerRow.insertCell(i).innerHTML = columnName;
+                    i++
+                  }
+                  for(var i = 0; i < response.rows.length; i++) {
+                    var row = dataTable.insertRow();
+                    var j = 0;
+                    for(value in response.rows[i]) {
+                      row.insertCell(j).innerHTML =  response.rows[i][value];
+                      j++;
+                    }
+                  }
+                } else {
+                  document.getElementsByClassName('MessageContainer')[0].style.display = 'block';
+                  document.getElementById('queryStatus').innerHTML = response.message;
+                  if (response.message == "Sukces"){
+                    document.getElementById('queryStatus').style.color = 'green';
+                    if(response.rowCount == 1) {
+                      document.getElementById('queryMessage').innerHTML = response.rowCount + " wiersz zmieniono";
+                    } else {
+                      document.getElementById('queryMessage').innerHTML = response.rowCount + " wierszy zmieniono";
+                    }
+                  } else {
+                    document.getElementById('queryStatus').style.color = 'red';
+                    document.getElementById('queryMessage').innerHTML = response.error;
+                  }
+
+                }
+              },
+              error: function(response) {
+                //popup ładniejszy
+                alert(response);
+              }
+            });
+          }
+
+          function sortTable(n, direction) {
+            document.getElementsByClassName('MainContent')[0].style.display = 'none';
+            $("#dataTable tr").remove();
+            var tableName = sessionStorage.getItem('selectedTable');
+            var columnName = headerRow.cells[n].innerHTML;
+            console.log(tableName, columnName, direction)
             $.ajax({
-              url: '/api/getTables',
+              url: `/api/sortTable?tableName=${tableName}&order=${direction}&columnName=${columnName}`,
               type: 'GET',
               dataType: 'json',
               success: function(data) {
-                for (var i = 0; i < data.length; i++) {
-                  var a = document.createElement('a');
-                  a.innerHTML = data[i].table_name;
-                  a.setAttribute("onclick","changeTable(this);");
-                  document.getElementsByClassName('tableDropdownContent')[0].appendChild(a);
+                headerRow = dataTable.insertRow(0);
+                for(var i = 0; i < data.length; i++) {
+                  headerRow.insertCell(i).innerHTML = data[i].column_name;
                 }
-                console.log(data)
+                var sortRow = dataTable.insertRow();
+                for(var i = 0; i < data.length; i++) {
+                  sortRow.insertCell(i).innerHTML = `<button onclick='sortTable(${i}, "ASC")'><img class="UpArrowImg" src="./images/up-arrow.png"></button> 
+                                                      <button onclick='sortTable(${i}, "DESC")'><img class="DownArrowImg" src="./images/down-arrow.png"></button>`;
+                }
+                var inputRow = dataTable.insertRow();
+                for(var i = 0; i < data.length; i++) {
+                  inputRow.insertCell(i).innerHTML = '<input type="text" id="newRowInput' + i + '">';
+                }
+                inputRow.insertCell(data.length).innerHTML = '<button onclick="createRow(this)">Dodaj</button>';
+                $.ajax({
+                  url: `/api/getTableData?table=${tableName}`,
+                  type: 'GET',
+                  dataType: 'json',
+                  success: function(tableData) {
+                    console.log("Sukces pobierania danych z tabeli");
+                    for(var i = 0; i < tableData.length; i++) {
+                      var row = dataTable.insertRow();
+                      var j = 0;
+                      for(value in tableData[i]) {
+                        row.insertCell(j).innerHTML =  tableData[i][value];
+                        j++;
+                      }
+                      row.insertCell(j).innerHTML = '<button onclick="deleteRow(this)">Usuń</button>';
+                      row.insertCell(j+1).innerHTML = '<button onclick="editRow(this)">Edytuj</button>';
+                      row.insertCell(j+2).innerHTML = '<button onclick="saveRow(this)">Zapisz</button>';
+                    }
+                    console.log("koniec pobierania danych z tabeli");
+                  }
+                });
+              }
+            });
+          }
+          
+          function createRow(button) {
+            var row = button.parentNode.parentNode;
+            var newRow = { tableName: sessionStorage.getItem('selectedTable'), row: {} }
+            for (var i = 0; i < headerRow.cells.length; i++) {
+              newRow.row[headerRow.cells[i].innerText] = document.getElementById('newRowInput' + i).value;
+            }
+            $.ajax('/api/insertRow', {
+              data: JSON.stringify(newRow),
+              contentType : 'application/json',
+              type: 'POST',
+              success: function(response) {
+                //popup ładniejszy
+                getTableData();
+                alert(response);
               },
-              error: function(data) {
-                alert("error");
+              error: function(response) {
+                //popup ładniejszy
+                alert(response);
               }
             });
           }
@@ -240,6 +463,7 @@
           }
 
           function getTableData() {
+            document.getElementsByClassName('MainContent')[0].style.display = 'none';
             if(sessionStorage.getItem('selectedTable') == '') {
               alert('Wybierz tabelę!');
               return;
@@ -251,11 +475,14 @@
                 type: 'GET',
                 dataType: 'json',
                 success: function(data) {
-                  var header = dataTable.createTHead();
-                  console.log(data[0].column_name);
-                  headerRow = header.insertRow(0);
+                  headerRow = dataTable.insertRow(0);
                   for(var i = 0; i < data.length; i++) {
                     headerRow.insertCell(i).innerHTML = data[i].column_name;
+                  }
+                  var sortRow = dataTable.insertRow();
+                  for(var i = 0; i < data.length; i++) {
+                    sortRow.insertCell(i).innerHTML = `<button onclick='sortTable(${i}, "ASC")'><img class="UpArrowImg" src="./images/up-arrow.png"></button> 
+                                                      <button onclick='sortTable(${i}, "DESC")'><img class="DownArrowImg" src="./images/down-arrow.png"></button>`;
                   }
                   var inputRow = dataTable.insertRow();
                   for(var i = 0; i < data.length; i++) {
