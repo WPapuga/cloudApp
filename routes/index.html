@@ -386,52 +386,30 @@
           }
 
           function sortTable(n, direction) {
-            document.getElementsByClassName('MainContent')[0].style.display = 'none';
-            $("#dataTable tr").remove();
+            console.log(dataTable.rows.length)
+            for (var i = 3; i < dataTable.rows.length;) {
+              dataTable.deleteRow(i);
+            }
             var tableName = sessionStorage.getItem('selectedTable');
             var columnName = headerRow.cells[n].innerHTML;
-            console.log(tableName, columnName, direction)
             $.ajax({
               url: `/api/sortTable?tableName=${tableName}&order=${direction}&columnName=${columnName}`,
               type: 'GET',
               dataType: 'json',
-              success: function(data) {
-                headerRow = dataTable.insertRow(0);
-                for(var i = 0; i < data.length; i++) {
-                  headerRow.insertCell(i).innerHTML = data[i].column_name;
-                }
-                var sortRow = dataTable.insertRow();
-                for(var i = 0; i < data.length; i++) {
-                  sortRow.insertCell(i).innerHTML = `<button onclick='sortTable(${i}, "ASC")'><img class="UpArrowImg" src="./images/up-arrow.png"></button> 
-                                                      <button onclick='sortTable(${i}, "DESC")'><img class="DownArrowImg" src="./images/down-arrow.png"></button>`;
-                }
-                var inputRow = dataTable.insertRow();
-                for(var i = 0; i < data.length; i++) {
-                  inputRow.insertCell(i).innerHTML = '<input type="text" id="newRowInput' + i + '">';
-                }
-                inputRow.insertCell(data.length).innerHTML = '<button onclick="createRow(this)">Dodaj</button>';
-                $.ajax({
-                  url: `/api/getTableData?table=${tableName}`,
-                  type: 'GET',
-                  dataType: 'json',
-                  success: function(tableData) {
-                    console.log("Sukces pobierania danych z tabeli");
-                    for(var i = 0; i < tableData.length; i++) {
-                      var row = dataTable.insertRow();
-                      var j = 0;
-                      for(value in tableData[i]) {
-                        row.insertCell(j).innerHTML =  tableData[i][value];
-                        j++;
-                      }
-                      row.insertCell(j).innerHTML = '<button onclick="deleteRow(this)">Usuń</button>';
-                      row.insertCell(j+1).innerHTML = '<button onclick="editRow(this)">Edytuj</button>';
-                      row.insertCell(j+2).innerHTML = '<button onclick="saveRow(this)">Zapisz</button>';
-                    }
-                    console.log("koniec pobierania danych z tabeli");
+              success: function(tableData) {
+                for(var i = 0; i < tableData.length; i++) {
+                  var row = dataTable.insertRow();
+                  var j = 0;
+                  for(value in tableData[i]) {
+                    row.insertCell(j).innerHTML =  tableData[i][value];
+                    j++;
                   }
-                });
+                  row.insertCell(j).innerHTML = '<button onclick="deleteRow(this)">Usuń</button>';
+                  row.insertCell(j+1).innerHTML = '<button onclick="editRow(this)">Edytuj</button>';
+                  row.insertCell(j+2).innerHTML = '<button onclick="saveRow(this)">Zapisz</button>';
+                }
               }
-            });
+            })
           }
           
           function createRow(button) {
