@@ -255,12 +255,6 @@
                 </div>
                 <button class = "getDataButton" onclick="getTableData()">pokaż zawartość tabeli</button>
             </div>
-            <!-- <div class="NavSigning">
-                <p id="usernameP"></p>
-                <a id="loginButton" onclick="window.location.href = '/login';">Zaloguj się przez Google!</a>
-                <a id="loginGhButton" onclick="window.location.href = '/loginGH';">Zaloguj się przez GitHub!</a>
-                <a id="logout" onclick="window.location.href = '/logout';">Wyloguj się</a>
-            </div> -->
         </div>
         <div class="MainContent">
           <a id="dbName"></a>
@@ -294,17 +288,6 @@
             if(sessionStorage.getItem('sqlQuery') != '') {
               document.getElementById('queryInput').value = sessionStorage.getItem('sqlQuery');
             }
-            // if (sessionStorage.getItem('isLogged') == 'true') {
-            // document.getElementById('loginButton').style.display = 'none';
-            // document.getElementById('loginGhButton').style.display = 'none';
-            // document.getElementById('logout').style.display = 'block';
-            // document.getElementById('usernameP').innerHTML = 'Zalogowany jako: ' + sessionStorage.getItem('username');
-            // } else {
-            //   document.getElementById('loginButton').style.display = 'block';
-            //   document.getElementById('loginGhButton').style.display = 'block';
-            //   document.getElementById('logout').style.display = 'none';
-            //   document.getElementById('usernameP').innerHTML = ' ';
-            // }
             $.ajax({
               url: '/api/getDBName',
               type: 'GET',
@@ -343,7 +326,6 @@
               contentType : 'application/json',
               type: 'POST',
               success: function(response) {
-                //popup ładniejszy
                 alert(response.message)
                 document.getElementsByClassName('MainContent')[0].style.display = 'none';
                 if(response.command == 'SELECT') {
@@ -379,7 +361,6 @@
                 }
               },
               error: function(response) {
-                //popup ładniejszy
                 alert(response);
               }
             });
@@ -387,7 +368,7 @@
 
           function sortTable(n, direction) {
             console.log(dataTable.rows.length)
-            for (var i = 3; i < dataTable.rows.length;) {
+            for (var i = 4; i < dataTable.rows.length;) {
               dataTable.deleteRow(i);
             }
             var tableName = sessionStorage.getItem('selectedTable');
@@ -423,12 +404,10 @@
               contentType : 'application/json',
               type: 'POST',
               success: function(response) {
-                //popup ładniejszy
                 getTableData();
                 alert(response);
               },
               error: function(response) {
-                //popup ładniejszy
                 alert(response);
               }
             });
@@ -467,6 +446,11 @@
                     inputRow.insertCell(i).innerHTML = '<input type="text" id="newRowInput' + i + '">';
                   }
                   inputRow.insertCell(data.length).innerHTML = '<button onclick="createRow(this)">Dodaj</button>';
+                  var filterRow = dataTable.insertRow();
+                  for(var i = 0; i < data.length; i++) {
+                    filterRow.insertCell(i).innerHTML = '<input type="text" id="filterInput' + i + '">';
+                  }
+                  filterRow.insertCell(data.length).innerHTML = '<button onclick="filter()">Filtruj</button>';
                   $.ajax({
                     url: `/api/getTableData?table=${tableName}`,
                     type: 'GET',
@@ -509,12 +493,10 @@
               contentType : 'application/json',
               type: 'POST',
               success: function(response) {
-                //popup ładniejszy
                 getTableData();
                 alert(response);
               },
               error: function(response) {
-                //popup ładniejszy
                 alert(response);
               }
             });
@@ -532,12 +514,10 @@
               contentType : 'application/json',
               type: 'DELETE',
               success: function(response) {
-                //popup ładniejszy
                 getTableData();
                 alert(response);
               },
               error: function(response) {
-                //popup ładniejszy
                 alert(response);
               }
             });
@@ -551,7 +531,8 @@
                 tempRow.push(value);
                 row.cells[i].innerHTML = '<input type="text" id="editRowInput' + i + '" value="' + value + '">';
               }
-              for (var i = 2; i < dataTable.rows.length; i++){
+              for (var i = 3; i < dataTable.rows.length; i++){
+                dataTable.rows[i].cells[headerRow.cells.length].querySelector('button').disabled = true;
                 dataTable.rows[i].cells[headerRow.cells.length + 1].querySelector('button').disabled = true;
                 dataTable.rows[i].cells[headerRow.cells.length + 2].querySelector('button').disabled = true;
               }
@@ -561,7 +542,8 @@
               for (var i = 0; i < headerRow.cells.length; i++){
                 row.cells[i].innerHTML = tempRow[i];
               }
-              for (var i = 2; i < dataTable.rows.length; i++){
+              for (var i = 3; i < dataTable.rows.length; i++){
+                dataTable.rows[i].cells[headerRow.cells.length].querySelector('button').disabled = false;
                 dataTable.rows[i].cells[headerRow.cells.length + 1].querySelector('button').disabled = false;
                 dataTable.rows[i].cells[headerRow.cells.length + 2].querySelector('button').disabled = false;
               }
@@ -581,17 +563,47 @@
               contentType : 'application/json',
               type: 'PUT',
               success: function(response) {
-                //popup ładniejszy
                 getTableData();
                 tempRow = []
                 alert(response);
               },
               error: function(response) {
-                //popup ładniejszy
                 tempRow = []
                 alert(response);
               }
             });
+          }
+
+          function filter() {
+            for (var i = 4; i < dataTable.rows.length;) {
+              dataTable.deleteRow(i);
+            }
+            var tableName = sessionStorage.getItem('selectedTable');
+            var filterData = {tableName: tableName, row: {}}
+            for (var i = 0; i < headerRow.cells.length; i++) {
+              var value = dataTable.rows[3].cells[i].querySelector('input').value;
+              if(value != '') {
+                filterData.row[headerRow.cells[i].innerText] = value;
+              }
+            }
+            $.ajax('/api/filter', {
+              data: JSON.stringify(filterData),
+              contentType : 'application/json',
+              type: 'POST',
+              success: function(tableData) {
+                for(var i = 0; i < tableData.length; i++) {
+                  var row = dataTable.insertRow();
+                  var j = 0;
+                  for(value in tableData[i]) {
+                    row.insertCell(j).innerHTML =  tableData[i][value];
+                    j++;
+                  }
+                  row.insertCell(j).innerHTML = '<button onclick="deleteRow(this)">Usuń</button>';
+                  row.insertCell(j+1).innerHTML = '<button onclick="editRow(this)">Edytuj</button>';
+                  row.insertCell(j+2).innerHTML = '<button onclick="saveRow(this)">Zapisz</button>';
+                }
+              }
+            })
           }
 
         </script>
