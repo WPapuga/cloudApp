@@ -531,7 +531,7 @@
                 tempRow.push(value);
                 row.cells[i].innerHTML = '<input type="text" id="editRowInput' + i + '" value="' + value + '">';
               }
-              for (var i = 3; i < dataTable.rows.length; i++){
+              for (var i = 4; i < dataTable.rows.length; i++){
                 dataTable.rows[i].cells[headerRow.cells.length].querySelector('button').disabled = true;
                 dataTable.rows[i].cells[headerRow.cells.length + 1].querySelector('button').disabled = true;
                 dataTable.rows[i].cells[headerRow.cells.length + 2].querySelector('button').disabled = true;
@@ -542,7 +542,7 @@
               for (var i = 0; i < headerRow.cells.length; i++){
                 row.cells[i].innerHTML = tempRow[i];
               }
-              for (var i = 3; i < dataTable.rows.length; i++){
+              for (var i = 4; i < dataTable.rows.length; i++){
                 dataTable.rows[i].cells[headerRow.cells.length].querySelector('button').disabled = false;
                 dataTable.rows[i].cells[headerRow.cells.length + 1].querySelector('button').disabled = false;
                 dataTable.rows[i].cells[headerRow.cells.length + 2].querySelector('button').disabled = false;
