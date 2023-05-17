@@ -79,8 +79,12 @@ app.post('/api/insertRow', function (req, res) {
   SQLstmt = SQLstmt.slice(0, -2) + ");";; 
   console.log(SQLstmt);
   pool.query(SQLstmt, (error, result) => { 
-    if (error) throw error;
-    res.send("Dodano wiersz");
+    if (error) {
+      res.send(error.message)
+    }
+    else {
+      res.send("Dodano wiersz");
+    }
   });
 });
 
